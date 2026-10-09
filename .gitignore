@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env*
+!.env.example
+.hue.local.json
+*.log
+*-preview.png
+preview.png
