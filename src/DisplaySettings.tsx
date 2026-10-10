@@ -1,0 +1,3 @@
+export function DisplaySettings({scale,onChange}:{scale:string;onChange:(scale:string)=>void}){
+  return <section className="panel display-settings"><span className="eyebrow">DISPLAY & TOUCH</span><h2>Make Daylight easier to see</h2><p>Adjust text and controls for this device. The setting is saved automatically.</p><div className="display-options">{[['standard','Standard'],['comfortable','Larger'],['large','Extra large']].map(([value,label])=><button key={value} className={scale===value?'active':''} aria-pressed={scale===value} onClick={()=>onChange(value)}>{label}</button>)}</div><div className="display-preview"><strong>Today’s focus</strong><span>Readable tasks. Comfortable controls.</span></div></section>;
+}
