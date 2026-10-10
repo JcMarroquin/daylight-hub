@@ -1,5 +1,7 @@
 # Daylight — personal hub prototype
 
+Deployment: see [DEPLOYMENT.md](DEPLOYMENT.md). For remote Hue controls on Render, follow [HUE-DEPLOYMENT.md](HUE-DEPLOYMENT.md). The notes below describe the original prototype; the current app also includes Supabase authentication/storage and weekly scheduling.
+
 Run `npm install`, then `npm run dev`. Open the localhost address Vite prints. `npm run build` checks TypeScript and creates production assets; `npm test` verifies core scheduling constraints.
 
 Supabase setup: copy `.env.example` to `.env.local` (the project URL is already present) and put the project's `sb_publishable_...` key in `VITE_SUPABASE_PUBLISHABLE_KEY`. Never put a Supabase secret or service-role key in a `VITE_` variable or browser code. Cloud data access is not active yet; apply the migration in `supabase/migrations` after confirming the project schema, then wire auth and data repositories.

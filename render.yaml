@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: daylight-hub
+    runtime: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: hue-connections
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: APP_URL
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: HUE_CLIENT_ID
+        sync: false
+      - key: HUE_CLIENT_SECRET
+        sync: false
+      - key: HUE_APP_ID
+        value: DayLight Hub
+      - key: HUE_OWNER_EMAIL
+        sync: false
+      - key: HUE_ENCRYPTION_KEY
+        sync: false
+      - key: HUE_STORE_PATH
+        value: /var/data/hue-connections.json

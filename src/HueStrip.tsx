@@ -2,12 +2,7 @@ import {useEffect,useState} from 'react';
 import {Lightbulb,Power,RefreshCw} from 'lucide-react';
 
 type Status={connected:boolean;light?:{name:string;on:boolean;brightness:number}};
-async function hue(path:string,body?:unknown){
-  const response=await fetch(`/api/hue${path}`,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
-  const data=await response.json();
-  if(!response.ok)throw new Error(data.error??'Could not reach room light.');
-  return data;
-}
+import {hueRequest as hue} from './hueClient';
 export function HueStrip(){
   const [status,setStatus]=useState<Status>({connected:false});
   const [error,setError]=useState('');

@@ -6,3 +6,4 @@ dist/
 *.log
 *-preview.png
 preview.png
+hue-connections.json*

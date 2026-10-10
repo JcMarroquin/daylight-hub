@@ -1,5 +1,7 @@
 # Deploy Daylight
 
+For hosted Hue controls, use the Render Web Service setup in [HUE-DEPLOYMENT.md](HUE-DEPLOYMENT.md). The static-site option below serves the dashboard without the remote Hue backend.
+
 Import this GitHub repository into Vercel or Netlify. Choose the Vite preset, use `npm run build` as the build command, and `dist` as the output directory.
 
 Set these environment variables in the hosting project before building:
