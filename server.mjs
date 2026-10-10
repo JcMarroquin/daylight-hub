@@ -4,6 +4,7 @@ import {readFileSync,existsSync} from 'node:fs';
 import {resolve,extname} from 'node:path';
 import {createClient} from '@supabase/supabase-js';
 import {createHueStore} from './hue-store.mjs';
+import {readDelay,setDelay} from './hue-delay.mjs';
 
 const origin=process.env.APP_URL?.replace(/\/$/,'');
 const clientId=process.env.HUE_CLIENT_ID;
@@ -60,6 +61,13 @@ const server=createServer(async(req,res)=>{const url=new URL(req.url,'http://loc
     if(url.pathname==='/api/hue/status'&&req.method==='GET'&&!await storage.read(user))return json(res,200,{connected:false,mode:'remote'});
     const data=await connection(user);
     const lights=await bridge(data,`/${data.username}/lights`);
+    if(url.pathname==='/api/hue/delay-off'){
+      if(!data.lightId||!lights[data.lightId])fail('Choose a light first.');
+      const request=(path,method='GET',payload)=>bridge(data,`/${data.username}${path}`,method,payload);
+      if(req.method==='GET')return json(res,200,await readDelay(request,data.username,data.lightId));
+      if(req.method==='POST'){const input=await body(req);return json(res,200,await setDelay(request,data.username,data.lightId,input.cancel===true?null:input.seconds));}
+      fail('Method not allowed.',405);
+    }
     if(url.pathname==='/api/hue/status'&&req.method==='GET'){const light=lights[data.lightId];return json(res,200,{connected:true,mode:'remote',lightId:data.lightId,light:light?{name:light.name,on:light.state.on,brightness:light.state.bri}:undefined});}
     if(url.pathname==='/api/hue/lights'&&req.method==='GET')return json(res,200,Object.entries(lights).map(([id,light])=>({id,name:light.name})));
     const input=await body(req);
