@@ -2,13 +2,10 @@ services:
   - type: web
     name: daylight-hub
     runtime: node
+    plan: free
     buildCommand: npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /health
-    disk:
-      name: hue-connections
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: 22
@@ -28,5 +25,5 @@ services:
         sync: false
       - key: HUE_ENCRYPTION_KEY
         sync: false
-      - key: HUE_STORE_PATH
-        value: /var/data/hue-connections.json
+      - key: SUPABASE_SECRET_KEY
+        sync: false

@@ -1,6 +1,6 @@
 # Hue on Render
 
-The frontend now uses the server's remote Hue endpoints when hosted and keeps the existing local Bridge connector for localhost development. The hosted connection uses Hue OAuth v2, verifies the signed-in Supabase account, stores credentials encrypted on disk, and refreshes access tokens when needed. Live OAuth approval still needs to be verified after deployment.
+The frontend uses the server's remote Hue endpoints when hosted and keeps the existing local Bridge connector for localhost development. The hosted connection uses Hue OAuth v2, verifies the signed-in Supabase account, stores credentials encrypted in Supabase, and refreshes access tokens when needed.
 
 ## Render Web Service
 
@@ -10,7 +10,13 @@ Create a Node Web Service from this repository, or deploy its `render.yaml` Blue
 - Start command: `npm start`
 - Health check: `/health`
 - Node version: 22
-- Persistent disk: mount at `/var/data` (requires a paid Render service).
+- Render Free plan is supported; no persistent disk is needed.
+
+## Supabase storage setup
+
+Open Supabase → SQL Editor, paste `supabase/migrations/202610090002_hue_connections.sql`, and run it. This creates a credentials table with row level security and no browser access. Only the backend's secret key can read and update the encrypted rows.
+
+In Supabase project settings → API Keys, get a server-only secret key (a legacy service-role key also works). Add it to Render as `SUPABASE_SECRET_KEY`. Never prefix this variable with `VITE_`, put it in Git, or paste it into chat. This key has privileged database access and belongs only in the backend environment.
 
 ## Environment variables
 
@@ -26,7 +32,7 @@ Set these in Render, never in browser code or Git:
 | `HUE_APP_ID` | `DayLight Hub`, exactly as registered |
 | `HUE_OWNER_EMAIL` | The email you use to sign into Daylight |
 | `HUE_ENCRYPTION_KEY` | A fresh random 64-character hexadecimal key |
-| `HUE_STORE_PATH` | `/var/data/hue-connections.json` |
+| `SUPABASE_SECRET_KEY` | Server-only Supabase secret key or legacy service-role key |
 
 Generate the encryption key in a local terminal with:
 
@@ -34,7 +40,7 @@ Generate the encryption key in a local terminal with:
 node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 ```
 
-Keep this key stable across deploys; changing it makes existing encrypted tokens unreadable. The persistent disk preserves the token store across restarts. This file-backed implementation supports a single server instance.
+Keep the encryption key stable across deploys; changing it makes existing encrypted tokens unreadable. Supabase preserves tokens across Render restarts and redeploys. Remove the old `HUE_STORE_PATH` variable; it is no longer used. If replacing the encryption key deliberately, delete the owner's row from `hue_connections` in the Supabase dashboard and connect Hue again.
 
 Register the exact callback URL in Hue:
 
