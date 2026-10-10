@@ -2,7 +2,7 @@ import type {SupabaseClient} from '@supabase/supabase-js';
 import type {Activity, Alarm, SleepLog} from './hubTypes';
 import type {Plan, Task} from './scheduler';
 
-type DbTask={id:string;title:string;category:string;project:string|null;due_date:string|null;estimate_minutes:number;priority:number;planning_date:string|null;required_today:boolean;is_done:boolean};
+type DbTask={id:string;title:string;category:string;project:string|null;due_date:string|null;estimate_minutes:number;priority:number;planning_date:string|null;required_today:boolean;is_done:boolean;is_archived?:boolean};
 type DbActivity={id:string;activity_date:string;kind:'gym_visit'|'task_completed'|'workout'|'habit';label:string;category:string|null;task_id:string|null};
 type DbSleep={id:string;wake_date:string;bedtime:string;wake_time:string;quality:number};
 type DbAlarm={id:string;alarm_time:string;label:string;is_enabled:boolean};
@@ -20,7 +20,7 @@ export async function checkHubSchema(client:SupabaseClient){
 
 export async function loadHub(client:SupabaseClient,userId:string){
  const [taskResult,activityResult,sleepResult,alarmResult,planResult,preferenceResult]=await Promise.all([
-  client.from('tasks').select('*').eq('user_id',userId).eq('is_archived',false).order('created_at'),
+  client.from('tasks').select('*').eq('user_id',userId).order('created_at'),
   client.from('activity_logs').select('*').eq('user_id',userId).order('activity_date'),
   client.from('sleep_logs').select('*').eq('user_id',userId).order('wake_date'),
   client.from('alarms').select('*').eq('user_id',userId).order('created_at'),
@@ -28,17 +28,18 @@ export async function loadHub(client:SupabaseClient,userId:string){
   client.from('planner_preferences').select('*').eq('user_id',userId).maybeSingle(),
  ]);
  for(const result of [taskResult,activityResult,sleepResult,alarmResult,planResult,preferenceResult])if(result.error)throw result.error;
- const remoteTasks=(taskResult.data??[]) as DbTask[];
+ const allRemoteTasks=(taskResult.data??[]) as DbTask[];
+ const remoteTasks=allRemoteTasks.filter(t=>!t.is_archived);
  const remoteActivities=(activityResult.data??[]) as DbActivity[];
  const localTasks=JSON.parse(localStorage.getItem('daylight.tasks')??'[]') as Task[];
  // Keep embedded demo rows local. UUID rows represent tasks created by the user.
  const localUserTasks=localTasks.filter(t=>uuidPattern.test(t.id));
- const remoteIds=new Set(remoteTasks.map(t=>t.id));
+ const remoteIds=new Set(allRemoteTasks.map(t=>t.id));
  const taskUploads=localUserTasks.filter(t=>!remoteIds.has(t.id)).map(t=>({id:t.id,user_id:userId,title:t.title,category:t.category??'Personal',project:t.project||null,due_date:t.dueDate||null,estimate_minutes:t.minutes,priority:t.priority,planning_date:t.selected?today():null,required_today:t.selected&&t.required,is_done:t.done,done_at:t.done?new Date().toISOString():null}));
  if(taskUploads.length){const {error}=await client.from('tasks').upsert(taskUploads,{onConflict:'id'});if(error)throw error;}
  const mappedTasks:Task[]=remoteTasks.map(t=>({id:t.id,title:t.title,category:t.category,project:t.project??'',dueDate:t.due_date??undefined,minutes:t.estimate_minutes??30,priority:t.priority,selected:t.planning_date===today(),required:t.planning_date===today()&&t.required_today,done:t.is_done}));
  const presentIds=new Set(mappedTasks.map(t=>t.id));
- for(const t of localUserTasks)if(!presentIds.has(t.id)){mappedTasks.push(t);}
+ for(const t of localUserTasks)if(!presentIds.has(t.id)&&!remoteIds.has(t.id)){mappedTasks.push(t);}
  // Once a user is connected, the cloud is the task source of truth. The six
  // non-UUID preview tasks are deliberately excluded from their workspace.
  const mergedTasks=mappedTasks;
