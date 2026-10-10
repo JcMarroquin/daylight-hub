@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc && vite build",
-    "test": "node --experimental-strip-types --test src/scheduler.test.ts src/weekGeometry.test.ts src/sleepPrompt.test.ts src/recurrence.test.ts",
+    "test": "node --experimental-strip-types --test src/scheduler.test.ts src/weekGeometry.test.ts src/sleepPrompt.test.ts src/recurrence.test.ts src/dayCalendarLayout.test.ts",
     "start": "node server.mjs"
   },
   "dependencies": {
