@@ -19,6 +19,10 @@ Use Node.js 22 or newer. Run `npm ci`, then `npm run dev`. Open the address prin
 
 Run `npm test` and `npm run build` to validate the app.
 
+## Work schedule sync
+
+Run [`supabase/migrations/202610100001_work_schedule.sql`](supabase/migrations/202610100001_work_schedule.sql) once in the Supabase SQL Editor, then reload Daylight on each device. The first signed-in device imports its saved local shifts if the cloud schedule is empty. Later edits and removals save to the account and refresh on other signed-in devices. The Work page shows the current sync status.
+
 ## Hue and alarms
 
 The Hue gateway in `vite.config.ts` runs only with the local development server on your home network. Pairing credentials are stored in `.hue.local.json`, which is excluded from Git. Static hosting does not include this gateway and cannot directly reach your home Bridge. Remote Hue controls require a separate local gateway or a remote integration; this is not implemented yet.
