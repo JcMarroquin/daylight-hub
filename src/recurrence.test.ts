@@ -14,3 +14,11 @@ test('daily date boundaries, completion and disabled recurrence are respected',(
   assert.equal(recurringWeek(start,[{...task,done:true}],{task:rule},[],[]).length,0);
   assert.equal(recurringWeek(start,[task],{task:{...rule,frequency:'none'}},[],[]).length,0);
 });
+test('repeatable tasks generate no automatic sessions and allow independent manual sessions',()=>{
+  const flexible:Recurrence={...rule,frequency:'flexible'};
+  const manual=[{id:'one',taskId:'task',date:'2026-10-05',start:'08:00',done:true},{id:'two',taskId:'task',date:'2026-10-05',start:'18:00'},{id:'three',taskId:'task',date:'2026-10-07',start:'18:00'}];
+  assert.deepEqual(recurringWeek(new Date(2026,9,5),[task],{task:flexible},[],[]),[]);
+  const result=recurringWeek(new Date(2026,9,5),[task],{task:flexible},manual,[]);
+  assert.equal(result.length,3);assert.equal(result[0].done,true);assert.equal(result[1].done,undefined);
+  assert.equal(recurringWeek(new Date(2026,9,5),[task],{task:{...flexible,timesPerWeek:4}},[...manual,{id:'four',taskId:'task',date:'2026-10-09',start:'18:00'}],[]).length,4);
+});

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {outlookDays,outlookItems,plannerDayKey} from './outlookModel.ts';
+import {outlookDays,outlookItems,plannerDayKey,timelineLanes,planningBlocks} from './outlookModel.ts';
 import {recurringWeek} from './recurrence.ts';
 import type {Task} from './scheduler';
 
@@ -20,4 +20,15 @@ test('recurrences remain visible when a three-day range crosses Sunday into Mond
   const start=new Date(2026,9,18,12);
   const blocks=recurringWeek(start,[task],{one:{frequency:'daily',timesPerWeek:7,monthlyDay:1}},[],[]);
   for(const day of outlookDays(start))assert.equal(outlookItems(plannerDayKey(day),'2026-10-18',[task],blocks).length,1);
+});
+test('overlapping and short calendar sessions get visible separate lanes',()=>{
+  const items=[{task,block:{id:'one',taskId:task.id,date:'2026-10-17',start:'09:00'}},{task,block:{id:'two',taskId:task.id,date:'2026-10-17',start:'09:30'}},{task,block:{id:'three',taskId:task.id,date:'2026-10-17',start:'11:00'}}];
+  const lanes=timelineLanes(items);assert.equal(lanes.get('one')?.lanes,2);assert.notEqual(lanes.get('one')?.lane,lanes.get('two')?.lane);assert.equal(lanes.get('three')?.lanes,1);
+});
+test('planner includes the entire goal week and the next week without duplicating manual sessions',()=>{
+  const manual={id:'manual',taskId:task.id,date:'2026-10-18',start:'10:00'};
+  const blocks=planningBlocks(new Date(2026,9,18,12),[task],{one:{frequency:'daily',timesPerWeek:7,monthlyDay:1}},[manual],[]);
+  assert.equal(blocks.filter(block=>block.date>='2026-10-12'&&block.date<='2026-10-18').length,7);
+  assert.equal(blocks.filter(block=>block.id==='manual').length,1);
+  assert.equal(blocks.filter(block=>block.date==='2026-10-19').length,1);
 });
