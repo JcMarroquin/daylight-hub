@@ -1,17 +1,14 @@
-import {useEffect,useState} from 'react';
+import {useState} from 'react';
 import {Lightbulb,Power} from 'lucide-react';
 
-type Status={connected:boolean;light?:{name:string;on:boolean;brightness:number}};
+import {useHueStatus} from './useHueStatus';
 import {hueRequest as hue} from './hueClient';
 import {HueDelayOff} from './HueDelayOff';
 import {ForegroundDialog} from './ForegroundDialog';
 export function HueStrip(){
-  const [status,setStatus]=useState<Status>({connected:false});
-  const [error,setError]=useState('');
+  const {status,setStatus,error,setError,refresh}=useHueStatus();
   const [busy,setBusy]=useState(false);
   const [menu,setMenu]=useState(false),[timerRevision,setTimerRevision]=useState(0);
-  async function refresh(){try{setStatus(await hue('/status'));setError('');}catch{setError('Light unavailable');}}
-  useEffect(()=>{void refresh();},[]);
   async function change(body:unknown){setBusy(true);try{await hue('/state',body);await refresh();}catch(e){setError(e instanceof Error?e.message:'Light unavailable');}finally{setBusy(false);}}
   const light=status.light;
   return <><section className="panel hue-strip" aria-label="Room light controls" onClick={e=>{if(!(e.target as HTMLElement).closest('button,input,label,select,form'))setMenu(true);}}>

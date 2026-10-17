@@ -1,10 +1,11 @@
 import {useEffect,useRef,useState} from 'react';
 import {hueRequest} from './hueClient';
+import {foregroundRefresh} from './foregroundRefresh';
 
 export function HueDelayOff({onDone,compact=false}:{onDone:()=>void;compact?:boolean}){
   const [endsAt,setEndsAt]=useState<number|null>(null),[now,setNow]=useState(Date.now()),[busy,setBusy]=useState(false),[error,setError]=useState(''),[amount,setAmount]=useState('1'),[unit,setUnit]=useState('minutes');
   const done=useRef(onDone);done.current=onDone;
-  useEffect(()=>{let active=true;void hueRequest<{endsAt:number|null}>('/delay-off').then(data=>{if(active)setEndsAt(data.endsAt);}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
+  useEffect(()=>foregroundRefresh(async signal=>{try{const data=await hueRequest<{endsAt:number|null}>('/delay-off',undefined,signal);if(!signal.aborted){setNow(Date.now());setEndsAt(data.endsAt);setError('');}}catch(e){if(!signal.aborted)setError(e instanceof Error?e.message:'Could not refresh light timer.');}}),[]);
   useEffect(()=>{if(!endsAt)return;const tick=()=>{const current=Date.now();setNow(current);if(current>=endsAt){setEndsAt(null);done.current();}};tick();const id=window.setInterval(tick,1000);return()=>clearInterval(id);},[endsAt]);
   async function set(seconds:number|null){setBusy(true);setError('');try{const data=await hueRequest<{endsAt:number|null}>('/delay-off',seconds===null?{cancel:true}:{seconds});setNow(Date.now());setEndsAt(data.endsAt);}catch(e){setError(e instanceof Error?e.message:'Could not set timer.');}finally{setBusy(false);}}
   const remaining=Math.max(0,Math.ceil(((endsAt??now)-now)/1000));const minutes=Math.floor(remaining/60),seconds=remaining%60;
