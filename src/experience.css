@@ -49,3 +49,21 @@
 .sleep-overview-stats dt{font-size:11px;margin-bottom:6px}
 .sleep-overview-stats dd{font-size:23px}
 }
+
+/* Analytics sit directly beneath the calendar, with a quiet split gradient. */
+.sleep-analytics{display:grid;grid-template-columns:minmax(180px,.85fr) minmax(0,2fr);min-width:0;border:1px solid #3c4962;border-radius:12px;overflow:hidden;background:linear-gradient(115deg,#292c49,#1c2b3b 65%,#172530)}
+.sleep-analytics .sleep-overview{border:0;border-radius:0;background:linear-gradient(145deg,#7778bf12,transparent);padding:20px 18px;margin:0;min-width:0}
+.sleep-analytics .sleep-overview-heading{align-items:flex-start;flex-direction:column;gap:12px;margin-bottom:20px}
+.sleep-analytics .sleep-overview-heading h2{font-size:15px;color:#e0e5fc}
+.sleep-analytics .sleep-overview-stats{grid-template-columns:1fr;gap:14px}
+.sleep-analytics .sleep-overview-stats>div+div{border:0;padding:0}
+.sleep-analytics .sleep-overview-stats>div{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sleep-analytics .sleep-overview-stats dt{font-size:10px;margin:0}
+.sleep-analytics .sleep-overview-stats dd{font-size:19px;white-space:nowrap}
+.sleep-analytics .sleep-trend-panel{min-width:0;border:0;border-left:1px solid #68729a33;border-radius:0;background:transparent;padding:20px 18px}
+.sleep-analytics .sleep-section-heading h2{font-size:18px}
+.sleep-analytics .sleep-duration-chart{height:190px}
+.sleep-analytics .sleep-bar-track{height:150px}
+.sleep-analytics .sleep-bar-track>span{background:linear-gradient(to top,#526aa9,#b7b1f0)}
+@media(min-width:701px) and (max-width:1050px){.sleep-analytics{grid-template-columns:1fr}.sleep-analytics .sleep-overview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.sleep-analytics .sleep-overview-heading{flex-direction:row;align-items:center}.sleep-analytics .sleep-trend-panel{border-left:0;border-top:1px solid #68729a33}}
+@media(max-width:700px){.sleep-analytics{order:2;width:100%;grid-template-columns:1fr}.sleep-analytics .sleep-overview-heading{flex-direction:row;align-items:center}.sleep-analytics .sleep-overview-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.sleep-analytics .sleep-overview-stats>div{display:block}.sleep-analytics .sleep-overview-stats dt{margin-bottom:6px}.sleep-analytics .sleep-trend-panel{border-left:0;border-top:1px solid #68729a33}.sleep-analytics .sleep-overview,.sleep-analytics .sleep-trend-panel{padding:16px}}
