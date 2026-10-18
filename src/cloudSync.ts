@@ -46,9 +46,9 @@ export async function loadHub(client:SupabaseClient,userId:string){
  localStorage.setItem('daylight.tasks',JSON.stringify(mergedTasks));
  const localActivities=JSON.parse(localStorage.getItem('daylight.activities')??'[]') as Activity[];
  const remoteActivityIds=new Set(remoteActivities.map(a=>a.id));
- const activityUploads=localActivities.filter(a=>uuidPattern.test(a.id)&&!remoteActivityIds.has(a.id)).map(a=>({id:a.id,user_id:userId,activity_date:a.date,kind:a.label==='Gym visit'?'gym_visit':a.sourceTaskId?'task_completed':a.category==='Fitness'?'workout':'habit',label:a.label,category:a.category||null,task_id:a.sourceTaskId&&uuidPattern.test(a.sourceTaskId)?a.sourceTaskId:null}));
+ const activityUploads=localActivities.filter(a=>uuidPattern.test(a.id)&&!remoteActivityIds.has(a.id)).map(a=>({id:a.id,user_id:userId,activity_date:a.date,kind:a.kind??(a.label==='Gym visit'?'gym_visit':a.sourceTaskId?'task_completed':a.category==='Fitness'?'workout':'habit'),label:a.label,category:a.category||null,task_id:a.sourceTaskId&&uuidPattern.test(a.sourceTaskId)?a.sourceTaskId:null}));
  if(activityUploads.length){const {error}=await client.from('activity_logs').upsert(activityUploads,{onConflict:'id'});if(error)throw error;}
- const mergedActivities=[...remoteActivities.map(a=>({id:a.id,date:a.activity_date,category:a.category??(a.kind==='gym_visit'?'Fitness':'Personal'),label:a.label,sourceTaskId:a.task_id??undefined})),...localActivities.filter(a=>!uuidPattern.test(a.id))];
+ const mergedActivities=[...remoteActivities.map(a=>({id:a.id,date:a.activity_date,category:a.category??(a.kind==='gym_visit'?'Fitness':'Personal'),label:a.label,sourceTaskId:a.task_id??undefined,kind:a.kind})),...localActivities.filter(a=>!uuidPattern.test(a.id))];
  localStorage.setItem('daylight.activities',JSON.stringify(mergedActivities));
  const localSleep=JSON.parse(localStorage.getItem('daylight.sleepLogs')??'[]') as SleepLog[];
  const sleepUploads=localSleep.map(s=>({user_id:userId,wake_date:s.wakeDate,bedtime:s.bedTime,wake_time:s.wakeTime,quality:s.quality}));

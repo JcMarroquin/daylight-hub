@@ -1,4 +1,4 @@
-export type Recurrence={frequency:'none'|'flexible'|'daily'|'weekly'|'monthly';timesPerWeek:number;monthlyDay:number;time?:string;startDate?:string;endDate?:string;weekdays?:number[]};
+export type Recurrence={frequency:'none'|'flexible'|'daily'|'weekly'|'monthly';timesPerWeek:number;monthlyDay:number;time?:string;startDate?:string;endDate?:string;weekdays?:number[];accountability?:boolean};
 export type WeekBlock={id:string;taskId:string;date:string;start:string;done?:boolean};
 const key=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export function recurringWeek(start:Date,tasks:{id:string;done:boolean}[],rules:Record<string,Recurrence>,manual:WeekBlock[],skipped:string[]){
