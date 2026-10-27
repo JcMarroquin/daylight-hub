@@ -1,4 +1,8 @@
-# Daylight — personal hub prototype
+# Daylight — habit tracker
+
+Daylight now centers on habits and recurring routines. Today opens with daily habit checks, progress, and a New habit action; Habits manages schedules, pauses, and archived routines. Work, Gym, Clock, Sleep, and Settings remain available. The Planner and Tasks tabs and their dashboard shortcuts have been removed. Legacy task data and migration support are retained so existing repeating tasks can still become habits.
+
+The notes below document the earlier task-planning prototype.
 
 Deployment: see [DEPLOYMENT.md](DEPLOYMENT.md). For remote Hue controls on Render, follow [HUE-DEPLOYMENT.md](HUE-DEPLOYMENT.md). The notes below describe the original prototype; the current app also includes Supabase authentication/storage and weekly scheduling.
 
